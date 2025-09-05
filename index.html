@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Family Feud — Player Onboarding</title>
+  <style>
+    :root{--bg:#f8fafc;--card:#ffffff;--muted:#6b7280;--text:#0f172a;--primary:#0ea5e9;--danger:#ef4444;--border:#e5e7eb;}
+    *{box-sizing:border-box} body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif;color:var(--text);background:linear-gradient(#fff, var(--bg));}
+    .container{max-width:1100px;margin:0 auto;padding:24px}
+    h1{margin:0 0 4px 0;font-size:28px} .sub{color:var(--muted);font-size:13px}
+    .row{display:grid;grid-template-columns:1fr;gap:16px;margin-top:16px}
+    @media (min-width: 980px){.row{grid-template-columns:2fr 1fr}}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:16px;box-shadow:0 1px 2px rgba(0,0,0,.04);}
+    .card h2{margin:0;font-size:18px}
+    .card .hd{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
+    .card .bd{padding:16px}
+    .btn{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--border);background:#fff;padding:8px 12px;border-radius:10px;cursor:pointer;font-size:14px}
+    .btn.primary{background:var(--primary);border-color:var(--primary);color:#fff}
+    .btn.danger{background:var(--danger);border-color:var(--danger);color:#fff}
+    .btn:disabled{opacity:.5;cursor:not-allowed}
+    .grid{display:grid;grid-template-columns:1fr;gap:12px}
+    @media (min-width: 740px){.grid.two{grid-template-columns:1fr 1fr} .grid.three{grid-template-columns:1fr 1fr 1fr}}
+    label{font-size:12px;color:var(--muted);display:block;margin-bottom:6px}
+    input, select{width:100%;height:40px;border:1px solid var(--border);border-radius:10px;padding:0 10px}
+    .muted{color:var(--muted);font-size:12px}
+    .badge{display:inline-flex;align-items:center;justify-content:center;height:28px;padding:0 10px;border-radius:999px;border:1px solid var(--border);background:#fff;font-size:12px}
+    .badge.active{background:var(--primary);border-color:var(--primary);color:#fff}
+    .flex{display:flex;gap:8px;align-items:center}
+    .space{display:flex;flex-wrap:wrap;gap:8px}
+    .right{margin-left:auto}
+    .roster{display:grid;grid-template-columns:1fr;gap:10px}
+    @media (min-width: 740px){.roster{grid-template-columns:1fr 1fr}}
+    @media (min-width: 980px){.roster{grid-template-columns:1fr 1fr 1fr}}
+    .pill{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px;border:1px solid var(--border);border-radius:14px;background:#fff}
+    .avatar{height:40px;width:40px;border-radius:999px;background:#eef2ff;display:grid;place-items:center;font-weight:700}
+    .progress{height:8px;background:#f1f5f9;border-radius:999px;overflow:hidden}
+    .progress>div{height:100%;background:var(--primary);width:0%}
+    .timer{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size:36px}
+    .qr-tip{font-size:12px;color:var(--muted);text-align:center}
+    .topbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;margin-top:12px}
+    .hidden{display:none}
+  </style>
+  <!-- QRCode lib -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" integrity="sha512-Mn0C3ZfD0UqzZPn1pV7p5mQ0yQm4zPq0F0yCqTkrwX2hKZ3a8sQ0m5zFJbY8uS5r6mZJv5zj9N6e7Jm3c0P0A==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+</head>
+<body>
+  <div class="container">
+    <div>
+      <h1>Family Feud — Player Onboarding</h1>
+      <div class="sub">Room <span id="room" style="font-family:monospace;font-weight:600"></span> • Capacity <span id="capCount">0</span>/30 • Session 30 minutes</div>
+    </div>
+    <div class="topbar">
+      <div class="space">
+        <button class="btn" id="copyLinkBtn">Copy link</button>
+        <button class="btn" id="exportBtn">Export CSV</button>
+        <button class="btn" id="lockBtn">Lock signups</button>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="card">
+        <div class="hd"><h2>Join the Game</h2></div>
+        <div class="bd">
+          <form id="joinForm" class="grid">
+            <div class="grid two">
+              <div>
+                <label for="name">Display name</label>
+                <input id="name" placeholder="e.g., Jordan R." />
+              </div>
+              <div>
+                <label>Role</label>
+                <div class="space">
+                  <button type="button" class="badge active" data-role="Player">Player</button>
+                  <button type="button" class="badge" data-role="Audience">Audience</button>
+                </div>
+              </div>
+            </div>
+            <div class="grid two">
+              <div>
+                <label>Team</label>
+                <div class="space">
+                  <button type="button" class="badge active" data-team="A">Team A</button>
+                  <button type="button" class="badge" data-team="B">Team B</button>
+                </div>
+              </div>
+              <div>
+                <label for="note">Note (optional)</label>
+                <input id="note" placeholder="e.g., remote, accessibility, etc." />
+              </div>
+            </div>
+            <div class="flex" style="justify-content:space-between">
+              <div class="muted">Use your real first name/initial. Host may remove duplicates.</div>
+              <button class="btn primary" id="joinBtn" type="submit">Join</button>
+            </div>
+          </form>
+          <div style="margin-top:12px">
+            <div class="flex" style="justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:6px">
+              <span>Capacity</span><span><span id="capNow">0</span> / 25</span>
+            </div>
+            <div class="progress"><div id="capBar"></div></div>
+            <div id="lockNote" class="muted hidden" style="margin-top:6px;color:#b45309">Signups are locked or lobby is full.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid">
+        <div class="card">
+          <div class="hd"><h2>Share to Join</h2></div>
+          <div class="bd" style="display:grid;place-items:center;gap:10px">
+            <div id="qrcode"></div>
+            <div class="space">
+              <button class="btn" id="copyJoin">Copy join link</button>
+            </div>
+            <div class="qr-tip">Players scan or tap the link to open this lobby. Data persists in the host’s browser.</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="hd"><h2>Session Timer</h2></div>
+          <div class="bd">
+            <div class="flex" style="justify-content:space-between;align-items:center">
+              <div class="timer" id="timer">30:00</div>
+              <div class="space">
+                <button class="btn primary" id="startBtn">Start</button>
+                <button class="btn" id="pauseBtn">Pause</button>
+                <button class="btn" id="resetBtn">Reset</button>
+              </div>
+            </div>
+            <div class="progress" style="margin-top:10px"><div id="timeBar"></div></div>
+            <div class="muted" style="margin-top:6px">Defaults to 30 minutes. You can pause for breaks.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:16px">
+      <div class="hd"><h2>Roster</h2></div>
+      <div class="bd">
+        <div id="emptyMsg" class="muted">No one has joined yet. Share the link or QR above.</div>
+        <div class="roster" id="roster"></div>
+        <div id="rosterActions" class="space hidden" style="margin-top:12px">
+          <button class="btn danger" id="clearBtn">Clear roster</button>
+          <button class="btn" id="exportBtn2">Export CSV</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:16px">
+      <div class="hd"><h2>Facilitator Notes</h2></div>
+      <div class="bd">
+        <ul class="muted">
+          <li>Max 30 participants enforced; lock signups once you’re ready.</li>
+          <li>QR/link opens this lobby with the current room code so late arrivals can join.</li>
+          <li>Roster & settings persist locally in the browser (no server). Export CSV to save.</li>
+          <li>To add buzzing/answers, connect to a backend later (Firebase/Supabase).</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+<script>
+(function() {
+  const MAX = 30, DURATION = 30 * 60; // seconds
+  // --- util ---
+  const $ = (q) => document.querySelector(q);
+  const $on = (el, ev, fn) => el.addEventListener(ev, fn);
+  const qs = (q) => Array.from(document.querySelectorAll(q));
+  const fmt = (s) => String(s).padStart(2, '0');
+  const now = () => Date.now();
+  function genRoom() {
+    const letters = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
+    return Array.from({length:5}, () => letters[Math.floor(Math.random()*letters.length)]).join('');
+  }
+  function csvEscape(s) {
+    if (/[",\n]/.test(s)) return '"' + String(s).replaceAll('"','""') + '"';
+    return String(s);
+  }
+  function toCSV(players, room) {
+    const header = ['Room','Name','Team','Role','Joined (ISO)'];
+    const rows = players.slice().sort((a,b)=>a.joinedAt-b.joinedAt).map(p=>[room, p.name, p.team, p.role, new Date(p.joinedAt).toISOString()]);
+    return [header, ...rows].map(r=>r.map(csvEscape).join(',')).join('\\n');
+  }
+  function dl(name, text, type='text/plain') {
+    const blob = new Blob([text], {type}); const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = name; a.click(); URL.revokeObjectURL(url);
+  }
+  function shareUrl(room) {
+    const u = new URL(window.location.href);
+    u.searchParams.set('room', room);
+    return u.toString();
+  }
+
+  // --- state ---
+  const url = new URL(window.location.href);
+  let room = url.searchParams.get('room') || genRoom();
+  if (!url.searchParams.get('room')) {
+    url.searchParams.set('room', room);
+    history.replaceState({}, '', url.toString());
+  }
+  const keys = {
+    roster: `ffued:${room}:roster`,
+    settings: `ffued:${room}:settings`
+  };
+  let players = [];
+  let locked = false;
+  let secondsLeft = DURATION;
+  let ticking = false;
+  let ticker = null;
+
+  // --- load ---
+  try {
+    const r = localStorage.getItem(keys.roster);
+    const s = localStorage.getItem(keys.settings);
+    if (r) players = JSON.parse(r);
+    if (s) { const o = JSON.parse(s); locked = !!o.locked; secondsLeft = typeof o.secondsLeft==='number'?o.secondsLeft:DURATION; ticking = !!o.ticking; }
+  } catch {}
+
+  // --- elements ---
+  const roomEl = $('#room');
+  const capCount = $('#capCount'), capNow = $('#capNow'), capBar = $('#capBar');
+  const lockBtn = $('#lockBtn'), lockNote = $('#lockNote');
+  const joinForm = $('#joinForm'), joinBtn = $('#joinBtn');
+  const roleBtns = qs('[data-role]'); const teamBtns = qs('[data-team]');
+  const nameInput = $('#name'), noteInput = $('#note');
+  const rosterEl = $('#roster'), emptyMsg = $('#emptyMsg'), rosterActions = $('#rosterActions');
+  const exportBtn = $('#exportBtn'), exportBtn2 = $('#exportBtn2'), clearBtn = $('#clearBtn');
+  const copyLinkBtn = $('#copyLinkBtn'), copyJoin = $('#copyJoin');
+  const timerEl = $('#timer'), startBtn = $('#startBtn'), pauseBtn = $('#pauseBtn'), resetBtn = $('#resetBtn'), timeBar = $('#timeBar');
+
+  // --- init ---
+  roomEl.textContent = room;
+  new QRCode(document.getElementById('qrcode'), { text: shareUrl(room), width: 200, height: 200, correctLevel: QRCode.CorrectLevel.M });
+  // apply role/team toggles
+  function setActive(group, valueAttr, value) {
+    group.forEach(b => b.classList.toggle('active', b.getAttribute(valueAttr) === value));
+  }
+  let role = 'Player', team = 'A';
+  setActive(roleBtns, 'data-role', role); setActive(teamBtns, 'data-team', team);
+  roleBtns.forEach(b => $on(b, 'click', () => { role = b.getAttribute('data-role'); setActive(roleBtns, 'data-role', role); }));
+  teamBtns.forEach(b => $on(b, 'click', () => { team = b.getAttribute('data-team'); setActive(teamBtns, 'data-team', team); }));
+
+  function persist() {
+    localStorage.setItem(keys.roster, JSON.stringify(players));
+    localStorage.setItem(keys.settings, JSON.stringify({ locked, secondsLeft, ticking }));
+  }
+
+  function renderRoster() {
+    capCount.textContent = players.length; capNow.textContent = players.length;
+    capBar.style.width = Math.min(100, Math.round((players.length/30)*100)) + '%';
+    joinBtn.disabled = locked || players.length >= MAX;
+    nameInput.disabled = joinBtn.disabled; noteInput.disabled = joinBtn.disabled;
+    lockNote.classList.toggle('hidden', !(locked || players.length >= MAX));
+
+    rosterEl.innerHTML = '';
+    if (players.length === 0) {
+      emptyMsg.classList.remove('hidden'); rosterActions.classList.add('hidden');
+    } else {
+      emptyMsg.classList.add('hidden'); rosterActions.classList.remove('hidden');
+      players.slice().sort((a,b)=>a.joinedAt-b.joinedAt).forEach(p => {
+        const div = document.createElement('div'); div.className = 'pill';
+        div.innerHTML = `
+          <div class="flex" style="gap:10px">
+            <div class="avatar">${(p.name||'').split(' ').map(s=>s[0]).join('').slice(0,2).toUpperCase()}</div>
+            <div>
+              <div style="font-weight:600">${p.name}</div>
+              <div class="muted">Team ${p.team} • ${p.role}</div>
+            </div>
+          </div>
+          <div class="space">
+            <span class="badge">Team ${p.team}</span>
+            <button class="btn" data-remove="${p.id}">Remove</button>
+          </div>`;
+        rosterEl.appendChild(div);
+      });
+      qs('[data-remove]').forEach(btn => $on(btn, 'click', () => {
+        const id = btn.getAttribute('data-remove');
+        players = players.filter(x => x.id !== id);
+        persist(); renderRoster();
+      }));
+    }
+  }
+
+  function renderTimer() {
+    const m = Math.floor(secondsLeft/60), s = Math.floor(secondsLeft%60);
+    timerEl.textContent = fmt(m) + ':' + fmt(s);
+    const pct = (DURATION - secondsLeft)/DURATION * 100;
+    timeBar.style.width = Math.max(0, Math.min(100, pct)) + '%';
+  }
+
+  // initial render
+  renderRoster(); renderTimer();
+  if (ticking) startTick();
+
+  // --- events ---
+  $on(joinForm, 'submit', (e) => {
+    e.preventDefault();
+    const name = (nameInput.value || '').trim();
+    if (!name) { alert('Enter your display name.'); return; }
+    if (locked) { alert('Registration is locked.'); return; }
+    if (players.length >= MAX) { alert('Roster is full (30).'); return; }
+    if (players.some(x => x.name.trim().toLowerCase() === name.toLowerCase())) { alert('A player with that name already joined.'); return; }
+    const p = { id: crypto.randomUUID(), name, role, team, note: (noteInput.value||'').trim(), joinedAt: Date.now() };
+    players.push(p); nameInput.value=''; noteInput.value='';
+    persist(); renderRoster();
+  });
+
+  $on(exportBtn, 'click', () => dl(`family-feud-${room}-roster.csv`, toCSV(players, room), 'text/csv;charset=utf-8'));
+  $on(exportBtn2, 'click', () => dl(`family-feud-${room}-roster.csv`, toCSV(players, room), 'text/csv;charset=utf-8'));
+  $on(clearBtn, 'click', () => { if (confirm('Clear the roster? This cannot be undone.')) { players = []; persist(); renderRoster(); } });
+  $on(copyLinkBtn, 'click', async () => { await navigator.clipboard.writeText(shareUrl(room)); });
+  $on(copyJoin, 'click', async () => { await navigator.clipboard.writeText(shareUrl(room)); });
+
+  $on(lockBtn, 'click', () => { locked = !locked; lockBtn.textContent = locked ? 'Unlock' : 'Lock signups'; persist(); renderRoster(); });
+  lockBtn.textContent = locked ? 'Unlock' : 'Lock signups';
+
+  function startTick() {
+    if (ticker) clearInterval(ticker);
+    ticking = true;
+    ticker = setInterval(() => {
+      secondsLeft = Math.max(0, secondsLeft - 1);
+      renderTimer();
+      if (secondsLeft === 0) { clearInterval(ticker); ticking = false; persist(); }
+    }, 1000);
+  }
+  $on(startBtn, 'click', () => { if (!ticking) { startTick(); persist(); } });
+  $on(pauseBtn, 'click', () => { if (ticking) { clearInterval(ticker); ticking = false; persist(); }});
+  $on(resetBtn, 'click', () => { secondsLeft = DURATION; renderTimer(); ticking = false; if (ticker) clearInterval(ticker); persist(); });
+
+})();</script>
+</body>
+</html>
